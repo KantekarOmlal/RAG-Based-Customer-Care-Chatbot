@@ -2,15 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env")
-# ✅ ONLY ONE app instance
 app = FastAPI()
 
-# ✅ ADD CORS IMMEDIATELY HERE
+# ADD CORS 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],   # VERY IMPORTANT
+    allow_methods=["*"],   
     allow_headers=["*"],
 )
 from fastapi import FastAPI
@@ -24,31 +23,23 @@ from langchain_community.vectorstores import FAISS
 from groq import Groq
 import os
 
-# -------------------------------
 # 1. Load data
-# -------------------------------
 loader = TextLoader("data.txt", encoding="utf-8")
 documents = loader.load()
 
-# -------------------------------
 # 2. Split
-# -------------------------------
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=500,
     chunk_overlap=50
 )
 chunks = splitter.split_documents(documents)
 
-# -------------------------------
 # 3. Embeddings
-# -------------------------------
 embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
 
-# -------------------------------
 # 4. FAISS
-# -------------------------------
 if os.path.exists("faiss_index"):
     vectorstore = FAISS.load_local(
         "faiss_index",
@@ -61,9 +52,7 @@ else:
 
 retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
-# -------------------------------
 # 5. Groq LLM
-# -------------------------------
 import os
 from groq import Groq
 
@@ -76,9 +65,7 @@ def ask_llm(prompt):
     )
     return response.choices[0].message.content
 
-# -------------------------------
 # 6. FastAPI
-# -------------------------------
 
 class Query(BaseModel):
     question: str

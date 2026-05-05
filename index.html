@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAG Chatbot</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0b0b0b;
+            color: white;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: black;
+            padding: 15px 30px;
+            font-weight: bold;
+            font-size: 20px;
+            border-bottom: 2px solid #ff6a00;
+        }
+
+        .navbar span {
+            color: #ff6a00;
+        }
+
+        /* Chat container */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #111;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 106, 0, 0.2);
+        }
+
+        .messages {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .msg {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .user {
+            background: #222;
+            text-align: right;
+        }
+
+        .bot {
+            background: #1a1a1a;
+            border-left: 3px solid #ff6a00;
+        }
+
+        /* Input section */
+        .input-box {
+            display: flex;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            background: #222;
+            color: white;
+        }
+
+        button {
+            background: #ff6a00;
+            border: none;
+            padding: 12px 20px;
+            margin-left: 10px;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #ff8533;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="navbar">
+    RAG <span>Chatbot</span>
+</div>
+
+<div class="container">
+
+    <div id="messages" class="messages"></div>
+
+    <div class="input-box">
+        <input id="input" placeholder="Ask something..." />
+        <button onclick="send()">Send</button>
+    </div>
+
+</div>
+
+<script>
+async function send() {
+    let input = document.getElementById("input");
+    let msg = input.value;
+
+    if (!msg) return;
+
+    let messages = document.getElementById("messages");
+
+    // user message
+    messages.innerHTML += `<div class="msg user">You: ${msg}</div>`;
+
+    input.value = "";
+
+    try {
+        let res = await fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ question: msg })
+        });
+
+        let data = await res.json();
+
+        // bot message
+        messages.innerHTML += `<div class="msg bot">Bot: ${data.answer}</div>`;
+
+        // auto scroll
+        messages.scrollTop = messages.scrollHeight;
+
+    } catch (err) {
+        messages.innerHTML += `<div class="msg bot">Error connecting to server</div>`;
+    }
+}
+</script>
+
+</body>
+</html>
